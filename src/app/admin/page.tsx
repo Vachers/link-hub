@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
 import { 
   Plus, Trash2, GripVertical, Save, User, Link2, 
   ExternalLink, Eye, EyeOff, Loader2, Check, Settings,
@@ -16,7 +15,7 @@ import {
 import { Toaster, toast } from 'sonner';
 import Link from 'next/link';
 
-type Link = {
+type LinkType = {
   id: number;
   title: string;
   url: string;
@@ -37,7 +36,7 @@ type Profile = {
 const EMOJIS = ['🔗', '🌟', '💼', '📧', '📱', '💻', '🎨', '📸', '🎵', '🎬', '📚', '🎮', '🚀', '💡', '🔥', '⚡', '🎯', '👋', '🌍', '💰'];
 
 export default function AdminPage() {
-  const [links, setLinks] = useState<Link[]>([]);
+  const [links, setLinks] = useState<LinkType[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -103,7 +102,7 @@ export default function AdminPage() {
         body: JSON.stringify(profileForm),
       });
       toast.success('Profil kaydedildi!', {
-        icon: <Check className="w-4 h-4 text-green-500" />,
+        icon: <Check className="w-4 h-4 text-emerald-500" />,
       });
       fetchData();
     } catch (error) {
@@ -135,7 +134,7 @@ export default function AdminPage() {
         body: JSON.stringify({ ...newLink, url }),
       });
       toast.success('Link eklendi!', {
-        icon: <Check className="w-4 h-4 text-green-500" />,
+        icon: <Check className="w-4 h-4 text-emerald-500" />,
       });
       setNewLink({ title: '', url: '', description: '', icon: '🔗' });
       fetchData();
@@ -172,27 +171,27 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+      <div className="min-h-screen bg-zinc-950 p-8">
         <div className="container mx-auto max-w-2xl space-y-6">
-          <Skeleton className="h-12 w-48 bg-slate-700" />
-          <Skeleton className="h-96 bg-slate-700" />
-          <Skeleton className="h-64 bg-slate-700" />
+          <Skeleton className="h-12 w-48 bg-zinc-900" />
+          <Skeleton className="h-96 bg-zinc-900" />
+          <Skeleton className="h-64 bg-zinc-900" />
         </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <Toaster position="top-right" richColors closeButton />
+    <main className="min-h-screen bg-zinc-950">
+      <Toaster position="top-right" richColors closeButton theme="dark" />
       
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-sm">
         <div className="container mx-auto max-w-2xl px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/">
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+                <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-white hover:bg-zinc-900">
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
               </Link>
@@ -201,12 +200,12 @@ export default function AdminPage() {
                   <Settings className="w-5 h-5" />
                   Admin Panel
                 </h1>
-                <p className="text-slate-500 text-sm">Link Hub yönetimi</p>
+                <p className="text-zinc-600 text-sm">Link Hub yönetimi</p>
               </div>
             </div>
             
             <Link href="/" target="_blank">
-              <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700">
+              <Button variant="outline" size="sm" className="border-zinc-800 text-zinc-400 hover:bg-zinc-900 hover:text-white">
                 <Eye className="w-4 h-4 mr-2" />
                 Önizle
               </Button>
@@ -221,7 +220,7 @@ export default function AdminPage() {
           <Button
             variant={activeTab === 'profile' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('profile')}
-            className={activeTab === 'profile' ? 'bg-purple-600 hover:bg-purple-700' : 'text-slate-400'}
+            className={activeTab === 'profile' ? 'bg-white text-zinc-950 hover:bg-zinc-200' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}
           >
             <User className="w-4 h-4 mr-2" />
             Profil
@@ -229,12 +228,12 @@ export default function AdminPage() {
           <Button
             variant={activeTab === 'links' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('links')}
-            className={activeTab === 'links' ? 'bg-purple-600 hover:bg-purple-700' : 'text-slate-400'}
+            className={activeTab === 'links' ? 'bg-white text-zinc-950 hover:bg-zinc-200' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}
           >
             <Link2 className="w-4 h-4 mr-2" />
             Linkler
             {links.length > 0 && (
-              <Badge variant="secondary" className="ml-2 bg-slate-700 text-slate-300">
+              <Badge variant="secondary" className="ml-2 bg-zinc-800 text-zinc-400">
                 {links.length}
               </Badge>
             )}
@@ -243,13 +242,13 @@ export default function AdminPage() {
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-xl">
+          <Card className="bg-zinc-900 border-zinc-800">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <User className="w-5 h-5 text-purple-400" />
+                <User className="w-5 h-5 text-zinc-400" />
                 Profil Bilgileri
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-zinc-600">
                 Ana sayfada görünecek profil bilgileriniz
               </CardDescription>
             </CardHeader>
@@ -260,7 +259,7 @@ export default function AdminPage() {
                   <img
                     src={profileForm.avatarUrl}
                     alt="Avatar preview"
-                    className="w-20 h-20 rounded-full border-4 border-purple-500/30 object-cover"
+                    className="w-20 h-20 rounded-full border-2 border-zinc-800 object-cover"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
@@ -269,40 +268,40 @@ export default function AdminPage() {
               )}
 
               <div className="space-y-2">
-                <Label className="text-slate-300 flex items-center gap-2">
-                  İsim <span className="text-red-400">*</span>
+                <Label className="text-zinc-400 flex items-center gap-2">
+                  İsim <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   value={profileForm.name}
                   onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500 focus:ring-purple-500/20"
+                  className="bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-700 focus:border-zinc-600 focus:ring-zinc-700"
                   placeholder="Adınız"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-300">Biyografi</Label>
+                <Label className="text-zinc-400">Biyografi</Label>
                 <Input
                   value={profileForm.bio}
                   onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500 focus:ring-purple-500/20"
+                  className="bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-700 focus:border-zinc-600 focus:ring-zinc-700"
                   placeholder="Kendinizi tanıtın..."
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-300">Avatar URL</Label>
+                <Label className="text-zinc-400">Avatar URL</Label>
                 <Input
                   value={profileForm.avatarUrl}
                   onChange={(e) => setProfileForm({ ...profileForm, avatarUrl: e.target.value })}
-                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500 focus:ring-purple-500/20"
+                  className="bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-700 focus:border-zinc-600 focus:ring-zinc-700"
                   placeholder="https://example.com/avatar.jpg"
                 />
               </div>
 
               <Button 
                 onClick={saveProfile} 
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="w-full bg-white text-zinc-950 hover:bg-zinc-200"
                 disabled={saving}
               >
                 {saving ? (
@@ -320,10 +319,10 @@ export default function AdminPage() {
         {activeTab === 'links' && (
           <div className="space-y-6">
             {/* Add Link Card */}
-            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-xl">
+            <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-green-400" />
+                  <Plus className="w-5 h-5 text-emerald-500" />
                   Yeni Link Ekle
                 </CardTitle>
               </CardHeader>
@@ -331,16 +330,16 @@ export default function AdminPage() {
                 <div className="grid grid-cols-[auto_1fr] gap-4 items-start">
                   {/* Emoji Picker */}
                   <div className="relative">
-                    <Label className="text-slate-300 mb-1.5 block">İkon</Label>
+                    <Label className="text-zinc-400 mb-1.5 block">İkon</Label>
                     <button
                       type="button"
                       onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                      className="w-14 h-10 rounded-lg bg-slate-700/50 border border-slate-600 text-2xl hover:bg-slate-700 transition-colors flex items-center justify-center"
+                      className="w-14 h-10 rounded-lg bg-zinc-950 border border-zinc-800 text-2xl hover:bg-zinc-900 transition-colors flex items-center justify-center"
                     >
                       {newLink.icon}
                     </button>
                     {showEmojiPicker && (
-                      <div className="absolute top-full left-0 mt-2 p-2 bg-slate-800 border border-slate-600 rounded-lg grid grid-cols-5 gap-1 z-10 shadow-xl">
+                      <div className="absolute top-full left-0 mt-2 p-2 bg-zinc-900 border border-zinc-800 rounded-lg grid grid-cols-5 gap-1 z-10 shadow-xl">
                         {EMOJIS.map((emoji) => (
                           <button
                             key={emoji}
@@ -349,7 +348,7 @@ export default function AdminPage() {
                               setNewLink({ ...newLink, icon: emoji });
                               setShowEmojiPicker(false);
                             }}
-                            className="w-8 h-8 hover:bg-slate-700 rounded text-xl"
+                            className="w-8 h-8 hover:bg-zinc-800 rounded text-xl"
                           >
                             {emoji}
                           </button>
@@ -360,13 +359,13 @@ export default function AdminPage() {
 
                   <div className="flex-1 space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-slate-300 flex items-center gap-2">
-                        Başlık <span className="text-red-400">*</span>
+                      <Label className="text-zinc-400 flex items-center gap-2">
+                        Başlık <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         value={newLink.title}
                         onChange={(e) => setNewLink({ ...newLink, title: e.target.value })}
-                        className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500"
+                        className="bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-700 focus:border-zinc-600"
                         placeholder="Link başlığı"
                       />
                     </div>
@@ -374,30 +373,30 @@ export default function AdminPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-slate-300 flex items-center gap-2">
-                    URL <span className="text-red-400">*</span>
+                  <Label className="text-zinc-400 flex items-center gap-2">
+                    URL <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     value={newLink.url}
                     onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500"
+                    className="bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-700 focus:border-zinc-600"
                     placeholder="https://example.com"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Açıklama</Label>
+                  <Label className="text-zinc-400">Açıklama</Label>
                   <Input
                     value={newLink.description}
                     onChange={(e) => setNewLink({ ...newLink, description: e.target.value })}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500"
+                    className="bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-700 focus:border-zinc-600"
                     placeholder="Opsiyonel açıklama"
                   />
                 </div>
 
                 <Button 
                   onClick={addLink} 
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                  className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Link Ekle
@@ -406,14 +405,14 @@ export default function AdminPage() {
             </Card>
 
             {/* Links List */}
-            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-xl">
+            <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader>
                 <CardTitle className="text-white flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-yellow-400" />
+                    <Sparkles className="w-5 h-5 text-zinc-500" />
                     Mevcut Linkler
                   </span>
-                  <Badge variant="secondary" className="bg-slate-700 text-slate-300">
+                  <Badge variant="secondary" className="bg-zinc-800 text-zinc-400">
                     {links.length} link
                   </Badge>
                 </CardTitle>
@@ -421,9 +420,9 @@ export default function AdminPage() {
               <CardContent>
                 {links.length === 0 ? (
                   <div className="text-center py-8">
-                    <Link2 className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                    <p className="text-slate-500">Henüz link eklenmedi</p>
-                    <p className="text-slate-600 text-sm mt-1">Yukarıdaki formu kullanarak ilk linkinizi ekleyin</p>
+                    <Link2 className="w-12 h-12 text-zinc-800 mx-auto mb-3" />
+                    <p className="text-zinc-600">Henüz link eklenmedi</p>
+                    <p className="text-zinc-700 text-sm mt-1">Yukarıdaki formu kullanarak ilk linkinizi ekleyin</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -432,15 +431,15 @@ export default function AdminPage() {
                         key={link.id}
                         className={`group flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 ${
                           link.isActive
-                            ? 'bg-slate-700/30 border-slate-600 hover:border-purple-500/30'
-                            : 'bg-slate-800/30 border-slate-700/50 opacity-60'
+                            ? 'bg-zinc-950 border-zinc-800 hover:border-zinc-700'
+                            : 'bg-zinc-950/50 border-zinc-900 opacity-50'
                         }`}
                       >
                         {/* Drag handle */}
-                        <GripVertical className="w-4 h-4 text-slate-500 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <GripVertical className="w-4 h-4 text-zinc-700 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
                         
                         {/* Icon */}
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-xl flex-shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-xl flex-shrink-0">
                           {link.icon}
                         </div>
                         
@@ -449,7 +448,7 @@ export default function AdminPage() {
                           <div className="flex items-center gap-2">
                             <span className="text-white font-medium truncate">{link.title}</span>
                             {!link.isActive && (
-                              <Badge variant="outline" className="text-xs border-slate-600 text-slate-500">
+                              <Badge variant="outline" className="text-xs border-zinc-700 text-zinc-600">
                                 Gizli
                               </Badge>
                             )}
@@ -458,7 +457,7 @@ export default function AdminPage() {
                             href={link.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-slate-400 text-sm truncate hover:text-purple-400 transition-colors flex items-center gap-1"
+                            className="text-zinc-600 text-sm truncate hover:text-zinc-400 transition-colors flex items-center gap-1"
                           >
                             {link.url}
                             <ExternalLink className="w-3 h-3 flex-shrink-0" />
@@ -471,7 +470,7 @@ export default function AdminPage() {
                             size="icon"
                             variant="ghost"
                             onClick={() => toggleLink(link.id, !link.isActive)}
-                            className={`h-8 w-8 ${link.isActive ? 'text-green-400 hover:bg-green-500/10' : 'text-slate-500 hover:bg-slate-700'}`}
+                            className={`h-8 w-8 ${link.isActive ? 'text-emerald-500 hover:bg-emerald-500/10' : 'text-zinc-600 hover:bg-zinc-800'}`}
                             title={link.isActive ? 'Gizle' : 'Göster'}
                           >
                             {link.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
@@ -480,7 +479,7 @@ export default function AdminPage() {
                             size="icon"
                             variant="ghost"
                             onClick={() => deleteLink(link.id, link.title)}
-                            className="h-8 w-8 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                            className="h-8 w-8 text-red-500 hover:bg-red-500/10 hover:text-red-400"
                             title="Sil"
                           >
                             <Trash2 className="w-4 h-4" />
