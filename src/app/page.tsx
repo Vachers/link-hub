@@ -1,13 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ExternalLink, Sparkles, ArrowRight } from 'lucide-react';
+import { ExternalLink, Sun, Moon, Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { Spotlight } from '@/components/ui/aceternity/spotlight';
-import { SparklesCore } from '@/components/ui/aceternity/sparkles';
-import { TextGenerateEffect } from '@/components/ui/aceternity/text-generate';
-import { BackgroundGradient } from '@/components/ui/aceternity/background-gradient';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type LinkType = {
   id: number;
@@ -30,8 +26,14 @@ export default function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [links, setLinks] = useState<LinkType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   useEffect(() => {
+    // Check system preference
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDarkMode(isDark);
+    
     async function fetchData() {
       try {
         const [linksRes, profileRes] = await Promise.all([
@@ -41,7 +43,6 @@ export default function HomePage() {
         const linksData = await linksRes.json();
         const profileData = await profileRes.json();
 
-        // Filter active links
         const activeLinks = linksData.filter((l: LinkType) => l.isActive);
         setLinks(activeLinks.sort((a: LinkType, b: LinkType) => a.order - b.order));
         
@@ -57,197 +58,198 @@ export default function HomePage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-zinc-950 flex items-center justify-center">
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${darkMode ? 'bg-zinc-50' : 'bg-zinc-950'}`}>
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-zinc-700 border-t-white rounded-full"
+          className={`w-8 h-8 border-2 rounded-full ${darkMode ? 'border-zinc-200 border-t-zinc-800' : 'border-zinc-800 border-t-zinc-200'}`}
         />
       </div>
     );
   }
 
+  const bgClass = darkMode ? 'bg-zinc-50' : 'bg-zinc-950';
+  const textClass = darkMode ? 'text-zinc-900' : 'text-zinc-100';
+  const textMutedClass = darkMode ? 'text-zinc-500' : 'text-zinc-400';
+  const cardClass = darkMode ? 'bg-white border-zinc-200' : 'bg-zinc-900 border-zinc-800';
+  const hoverClass = darkMode ? 'hover:bg-zinc-100' : 'hover:bg-zinc-800';
+
   return (
-    <main className="min-h-screen w-full rounded-md bg-zinc-950 relative overflow-hidden">
-      {/* Spotlight Effect */}
-      <Spotlight
-        className="-top-40 left-0 md:left-60 md:-top-20"
-        fill="rgba(255,255,255,0.03)"
-      />
-
-      {/* Sparkles Background */}
-      <div className="absolute inset-0 z-0">
-        <SparklesCore
-          id="tsparticles"
-          background="transparent"
-          minSize={0.2}
-          maxSize={0.8}
-          particleDensity={50}
-          className="w-full h-full"
-          particleColor="#3f3f46"
-        />
-      </div>
-
-      {/* Radial gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_80%,_rgba(63,63,70,0.1),_#09090b,_#09090b)]" />
-
-      <div className="relative z-10 container mx-auto px-4 py-20 max-w-lg">
-        {/* Profile Section */}
-        <div className="text-center mb-12">
-          {/* Avatar */}
-          <motion.div 
-            className="relative inline-block mb-6"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <BackgroundGradient className="rounded-full">
-              {profile?.avatarUrl ? (
-                <img
-                  src={profile.avatarUrl}
-                  alt={profile.name}
-                  className="w-28 h-28 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-28 h-28 rounded-full bg-zinc-900 flex items-center justify-center">
-                  <span className="text-4xl text-zinc-500 font-bold">
-                    {profile?.name?.charAt(0).toUpperCase() || '?'}
-                  </span>
-                </div>
-              )}
-            </BackgroundGradient>
-            
-            {/* Online indicator */}
-            <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-zinc-950" />
-          </motion.div>
-
-          {/* Name with TextGenerateEffect */}
-          <TextGenerateEffect
-            words={profile?.name || 'Link Hub'}
-            className="text-4xl font-bold text-white mb-3"
-          />
-          
-          {profile?.bio && (
-            <motion.p 
-              className="text-zinc-500 text-base max-w-xs mx-auto leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
+    <main className={`min-h-screen ${bgClass} transition-colors duration-300`}>
+      {/* Theme Toggle */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        onClick={() => setDarkMode(!darkMode)}
+        className={`fixed top-6 right-6 z-50 p-2 rounded-full transition-colors ${cardClass} ${hoverClass} border`}
+        aria-label="Toggle theme"
+      >
+        <AnimatePresence mode="wait">
+          {darkMode ? (
+            <motion.div
+              key="moon"
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              {profile.bio}
-            </motion.p>
-          )}
-
-          {/* Stats */}
-          {links.length > 0 && (
-            <motion.div 
-              className="flex items-center justify-center gap-2 mt-6"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
+              <Moon className="w-5 h-5" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="sun"
+              initial={{ rotate: 90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: -90, opacity: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-zinc-400 text-sm backdrop-blur-sm">
-                <Sparkles className="w-3.5 h-3.5" />
-                {links.length} Link
-              </span>
+              <Sun className="w-5 h-5" />
             </motion.div>
           )}
-        </div>
+        </AnimatePresence>
+      </motion.button>
+
+      {/* Admin Toggle */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        onClick={() => setShowAdmin(!showAdmin)}
+        className={`fixed top-6 right-20 z-50 p-2 rounded-full transition-colors ${cardClass} ${hoverClass} border`}
+        aria-label="Toggle admin"
+      >
+        <AnimatePresence mode="wait">
+          {showAdmin ? (
+            <X className="w-5 h-5" />
+          ) : (
+            <Menu className="w-5 h-5" />
+          )}
+        </AnimatePresence>
+      </motion.button>
+
+      {/* Admin Panel */}
+      <AnimatePresence>
+        {showAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-20 right-6 z-40 p-4 rounded-xl border ${cardClass} shadow-lg`}
+          >
+            <Link href="/admin" className={`flex items-center gap-2 ${textMutedClass} hover:${textClass} transition-colors`}>
+              Admin Paneline Git →
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="container mx-auto px-4 py-20 max-w-md">
+        {/* Profile Section */}
+        <motion.div 
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Avatar */}
+          <div className="relative inline-block mb-5">
+            {profile?.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name}
+                className={`w-24 h-24 rounded-full object-cover border-2 ${darkMode ? 'border-zinc-200' : 'border-zinc-800'}`}
+              />
+            ) : (
+              <div className={`w-24 h-24 rounded-full flex items-center justify-center border-2 ${darkMode ? 'bg-zinc-100 border-zinc-200' : 'bg-zinc-800 border-zinc-700'}`}>
+                <span className={`text-3xl font-semibold ${textMutedClass}`}>
+                  {profile?.name?.charAt(0).toUpperCase() || '?'}
+                </span>
+              </div>
+            )}
+            
+            {/* Online indicator */}
+            <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-zinc-950" />
+          </div>
+
+          {/* Name */}
+          <h1 className={`text-2xl font-semibold ${textClass} mb-2`}>
+            {profile?.name || 'Link Hub'}
+          </h1>
+          
+          {profile?.bio && (
+            <p className={`${textMutedClass} text-base max-w-xs mx-auto`}>
+              {profile.bio}
+            </p>
+          )}
+        </motion.div>
 
         {/* Links */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {links.length === 0 ? (
             <motion.div 
-              className="text-center py-16"
+              className="text-center py-12"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.3 }}
             >
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-zinc-900/50 border border-zinc-800 flex items-center justify-center">
-                <Sparkles className="w-10 h-10 text-zinc-700" />
-              </div>
-              <p className="text-zinc-600 mb-2 text-lg">Henüz link eklenmedi</p>
-              <p className="text-zinc-700 text-sm mb-6">Admin panelinden linklerinizi ekleyin</p>
-              <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors">
-                Admin paneline git <ArrowRight className="w-4 h-4" />
+              <p className={`${textMutedClass} mb-4`}>Henüz link eklenmedi</p>
+              <Link href="/admin" className={`${textClass} underline underline-offset-4`}>
+                Admin paneline git →
               </Link>
             </motion.div>
           ) : (
-            <div className="space-y-3">
-              {links.map((link, index) => (
-                <motion.a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 + index * 0.1 }}
-                  className="block group"
-                >
-                  <BackgroundGradient 
-                    className="rounded-2xl"
-                    animate={false}
-                  >
-                    <div className="flex items-center gap-4 p-4 bg-zinc-950 rounded-2xl group-hover:bg-zinc-900/50 transition-colors">
-                      {/* Icon */}
-                      <div className="w-12 h-12 rounded-xl bg-zinc-900 group-hover:bg-zinc-800 flex items-center justify-center text-2xl flex-shrink-0 transition-all duration-300 group-hover:scale-110">
-                        {link.icon || '🔗'}
-                      </div>
-                      
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-semibold text-lg truncate group-hover:text-zinc-100 transition-colors">
-                          {link.title}
-                        </h3>
-                        {link.description && (
-                          <p className="text-zinc-600 text-sm truncate mt-0.5 group-hover:text-zinc-500 transition-colors">
-                            {link.description}
-                          </p>
-                        )}
-                      </div>
-                      
-                      {/* Arrow */}
-                      <motion.div 
-                        className="flex-shrink-0 w-10 h-10 rounded-full bg-zinc-900 group-hover:bg-zinc-800 flex items-center justify-center"
-                        whileHover={{ x: 4 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      >
-                        <ExternalLink className="text-zinc-600 w-4 h-4 group-hover:text-zinc-400 transition-colors" />
-                      </motion.div>
-                    </div>
-                  </BackgroundGradient>
-                </motion.a>
-              ))}
-            </div>
+            links.map((link, index) => (
+              <motion.a
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.05 }}
+                className={`group flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 ${cardClass} ${hoverClass}`}
+              >
+                {/* Icon */}
+                <span className="text-xl flex-shrink-0">
+                  {link.icon || '🔗'}
+                </span>
+                
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <h3 className={`font-medium truncate ${textClass}`}>
+                    {link.title}
+                  </h3>
+                  {link.description && (
+                    <p className={`text-sm truncate ${textMutedClass}`}>
+                      {link.description}
+                    </p>
+                  )}
+                </div>
+                
+                {/* Arrow */}
+                <ExternalLink className={`w-4 h-4 flex-shrink-0 ${textMutedClass} group-hover:${textClass} transition-colors`} />
+              </motion.a>
+            ))
           )}
         </div>
 
         {/* Footer */}
         <motion.div 
-          className="mt-16 text-center"
+          className="mt-12 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
+          transition={{ delay: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 text-zinc-700 text-sm mb-4">
-            <span>Powered by</span>
-            <span className="text-zinc-500 font-medium">Link Hub</span>
-          </div>
-          
-          <div>
-            <Link href="/admin">
-              <motion.button 
-                className="text-zinc-600 hover:text-white text-sm transition-colors flex items-center gap-2 mx-auto"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                ⚙️ Admin
-              </motion.button>
-            </Link>
-          </div>
+          <p className={`text-sm ${textMutedClass}`}>
+            Powered by <span className="font-medium">Link Hub</span>
+          </p>
         </motion.div>
       </div>
     </main>
