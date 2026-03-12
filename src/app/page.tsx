@@ -1,24 +1,73 @@
-import { db } from '@/db';
-import { links, profile } from '@/db/schema';
+'use client';
+
+import { useState, useEffect } from 'react';
 import { ExternalLink, Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { eq } from 'drizzle-orm';
 import { Spotlight } from '@/components/ui/aceternity/spotlight';
 import { SparklesCore } from '@/components/ui/aceternity/sparkles';
 import { TextGenerateEffect } from '@/components/ui/aceternity/text-generate';
 import { BackgroundGradient } from '@/components/ui/aceternity/background-gradient';
 import { motion } from 'framer-motion';
 
-export const dynamic = 'force-dynamic';
+type LinkType = {
+  id: number;
+  title: string;
+  url: string;
+  description: string | null;
+  icon: string | null;
+  isActive: boolean;
+  order: number;
+};
 
-export default async function HomePage() {
-  const [profileData, linksData] = await Promise.all([
-    db.select().from(profile).limit(1),
-    db.select().from(links).where(eq(links.isActive, true)),
-  ]);
+type Profile = {
+  id: number;
+  name: string;
+  bio: string | null;
+  avatarUrl: string | null;
+};
 
-  const user = profileData[0];
-  const userLinks = linksData.sort((a, b) => a.order - b.order);
+export default function HomePage() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [links, setLinks] = useState<LinkType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [linksRes, profileRes] = await Promise.all([
+          fetch('/api/links'),
+          fetch('/api/profile'),
+        ]);
+        const linksData = await linksRes.json();
+        const profileData = await profileRes.json();
+
+        // Filter active links
+        const activeLinks = linksData.filter((l: LinkType) => l.isActive);
+        setLinks(activeLinks.sort((a: LinkType, b: LinkType) => a.order - b.order));
+        
+        if (profileData[0]) {
+          setProfile(profileData[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full bg-zinc-950 flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-8 h-8 border-2 border-zinc-700 border-t-white rounded-full"
+        />
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen w-full rounded-md bg-zinc-950 relative overflow-hidden">
@@ -55,16 +104,16 @@ export default async function HomePage() {
             transition={{ duration: 0.5 }}
           >
             <BackgroundGradient className="rounded-full">
-              {user?.avatarUrl ? (
+              {profile?.avatarUrl ? (
                 <img
-                  src={user.avatarUrl}
-                  alt={user.name}
+                  src={profile.avatarUrl}
+                  alt={profile.name}
                   className="w-28 h-28 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-28 h-28 rounded-full bg-zinc-900 flex items-center justify-center">
                   <span className="text-4xl text-zinc-500 font-bold">
-                    {user?.name?.charAt(0).toUpperCase() || '?'}
+                    {profile?.name?.charAt(0).toUpperCase() || '?'}
                   </span>
                 </div>
               )}
@@ -76,23 +125,23 @@ export default async function HomePage() {
 
           {/* Name with TextGenerateEffect */}
           <TextGenerateEffect
-            words={user?.name || 'Link Hub'}
+            words={profile?.name || 'Link Hub'}
             className="text-4xl font-bold text-white mb-3"
           />
           
-          {user?.bio && (
+          {profile?.bio && (
             <motion.p 
               className="text-zinc-500 text-base max-w-xs mx-auto leading-relaxed"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              {user.bio}
+              {profile.bio}
             </motion.p>
           )}
 
           {/* Stats */}
-          {userLinks.length > 0 && (
+          {links.length > 0 && (
             <motion.div 
               className="flex items-center justify-center gap-2 mt-6"
               initial={{ opacity: 0, y: 10 }}
@@ -101,7 +150,7 @@ export default async function HomePage() {
             >
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-zinc-400 text-sm backdrop-blur-sm">
                 <Sparkles className="w-3.5 h-3.5" />
-                {userLinks.length} Link
+                {links.length} Link
               </span>
             </motion.div>
           )}
@@ -109,7 +158,7 @@ export default async function HomePage() {
 
         {/* Links */}
         <div className="space-y-4">
-          {userLinks.length === 0 ? (
+          {links.length === 0 ? (
             <motion.div 
               className="text-center py-16"
               initial={{ opacity: 0 }}
@@ -127,7 +176,7 @@ export default async function HomePage() {
             </motion.div>
           ) : (
             <div className="space-y-3">
-              {userLinks.map((link, index) => (
+              {links.map((link, index) => (
                 <motion.a
                   key={link.id}
                   href={link.url}
